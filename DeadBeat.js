@@ -5,10 +5,19 @@ function preload() {
         game.load.image('note', 'assets/note.png');
 }
 
+
+
 function create() {
     game.stage.backgroundColor = 0xffffff;
     game.add.sprite(25, 25, 'title');
-    game.add.sprite(50, 50, 'note');
+    var note = game.add.sprite(50, 50, 'note');
+	
+	platforms = game.add.group();
+	
+   
+	note.scale.setTo(.2,.2);
+
+	
 }
 
 function update() {
