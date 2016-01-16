@@ -12,10 +12,11 @@ var currentState;
 
 function preload() {
     startState = new StartState(game);
+    playState = new PlayState(game);
 }
 
 function create() {
-    currentState = startState;
+    currentState = playState;
     currentState.enable();
 }
 
@@ -24,6 +25,9 @@ function update() {
     switch (currentState.tick()) {
         case "STARTSTATE":
             currentState = startState;
+            break;
+        case "PLAYSTATE":
+            currentState = playState;
             break;
     }
     if (oldState != currentState) {

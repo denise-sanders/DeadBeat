@@ -8,8 +8,8 @@ var StartState = function(phGame) {
 
     this.game.load.image('title', 'assets/DeadBeatTitle.png');
     this.game.load.image('note', 'assets/note.png');
-	this.game.load.image('start', 'assets/StartButton.png');
-	
+    this.game.load.image('start', 'assets/StartButton.png');
+
     this.game.load.audio('song', 'assets/song.ogg');
 
     this.backgroundColorValue = 0xff0000;
@@ -56,7 +56,7 @@ StartState.prototype.tick = function() {
 
 StartState.prototype.actionOnClick = function() {
     this.startButton.visible = false;
-	// Call next state
+    // Call next state
 }
 
 StartState.prototype.showNote = function() {
