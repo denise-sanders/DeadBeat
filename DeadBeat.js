@@ -1,125 +1,143 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+// See the README! Licensed under MIT. Endorsed by raptors!
 
+// Some useful NOTES!
+//
+// (1) Load assets in the constructor.
+// (2) Create things in enable.
+// (3) Logic goes in tick.
+// (4) Delete things in disable.
 
-var spaceKey;
+// Base GameState
 
-var textSpace;	// Says clap
-var textSpaceHeight = 300;
-var textSpaceWidth = 200; // Try to find a way to center this
+var GameState = function(phGame) {
+    this.name = "GAMESTATE";
+    this.game = phGame;
+};
 
-var backgroundColorValue; 
-var incrementer;
+GameState.prototype.enable = function() {};     // mark this state as active
+GameState.prototype.tick = function() {};       // tick the state
+GameState.prototype.disable = function() {};    // mark this state as inactive
 
-var note; // The music note sprite
+// PlayState extends GameState
 
-var startButton; 
+var PlayState = function(phGame) {
+    this.name = "PLAYSTATE";
+    this.game = phGame;
+
+    this.game.load.image('title', 'assets/DeadBeatTitle.png');
+    this.game.load.image('note', 'assets/note.png');
+    this.game.load.audio('song', 'assets/song.ogg');
+
+    this.backgroundColorValue = 0xff0000;
+    this.incrementer = 1;
+}
+
+PlayState.prototype = Object.create(GameState.prototype);
+
+PlayState.prototype.enable = function() {
+    this.game.stage.backgroundColor = this.backgroundColorValue;
+    this.game.add.sprite(25, 25, 'title');
+
+    this.note = this.game.add.sprite(-100, -100, 'note');
+    this.note.scale.setTo(.2,.2);
+
+    this.startButton = this.game.add.button(game.world.centerX - 95, 400, 'Start',
+            this.actionOnClick, this, 2, 1, 0);
+
+    this.spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    // Prevents the browswer from taking the signal
+    this.game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
+
+    var textSpaceHeight = 300;
+    var textSpaceWidth = 200; // Try to find a way to center this
+    this.textSpace = this.game.add.text(textSpaceWidth, textSpaceHeight, "", {
+        font: "100px Arial", fill: "#ffffff", align: "center" });
+}
+
+PlayState.prototype.tick = function() {
+    this.updateBackgroundColor();
+
+    // Using downDuration lets us display it longer
+    if (this.spaceKey.downDuration(250)) { //(this.spaceKey.isDown) 
+        this.textSpace.text = "Clap.";
+        this.showNote();
+    } else {
+        this.textSpace.text = "";
+        this.hideNote();
+    }
+    return this.name;
+}
+
+// Utilities for input and colors.
+
+PlayState.prototype.actionOnClick = function() {
+    console.log("Clicked!");
+}
+
+PlayState.prototype.showNote = function() {
+    this.note.reset(100,200);
+}
+
+PlayState.prototype.hideNote = function() {
+    this.note.reset(-100,-100);
+}
+
+PlayState.prototype.updateBackgroundColor = function() {
+    switch (this.backgroundColorValue) {
+        case 0xff0000:              // red
+            this.incrementer = 0x100;    // approaches yellow
+            break;
+        case 0xffff00:              // yellow
+            this.incrementer = -65536;   // -0x100000, approaches green
+            break;
+        case 0x00ff00:              // green
+            this.incrementer = 0x1;      // approaches cyan
+            break;
+        case 0x00ffff:              // cyan
+            this.incrementer = -256;     // approaches blue
+            break;
+        case 0x0000ff:              // blue
+            this.incrementer = 0x010000; // approaches purple
+            break;
+        case 0xff00ff:              // purple
+            this.incrementer = -1;       // approaches red
+            break;
+    }
+
+    this.backgroundColorValue += this.incrementer;
+    this.game.stage.backgroundColor = this.backgroundColorValue; // updates background
+}
+
+// Setup general stuff here.
+
+var width = $(window).width() - 20;
+var height = $(window).height() - 20;
+var game = new Phaser.Game(width, height, Phaser.AUTO, '', {
+    preload: preload, create: create, update: update
+});
+
+var playState;
+
+var currentState;
 
 function preload() {
-	game.load.image('title', 'assets/DeadBeatTitle.png');
-    game.load.image('note', 'assets/note.png');
-	
-	backgroundColorValue = 0xff0000;
-	incrementer = 1;
+    playState = new PlayState(game);
 }
-
-
 
 function create() {
-    game.stage.backgroundColor = backgroundColorValue;
-    game.add.sprite(25, 25, 'title');
-	
-    note = game.add.sprite(-100, -100, 'note');
-	
-	platforms = game.add.group();
-	
-   
-	note.scale.setTo(.2,.2);
-
-	startButton = game.add.button(game.world.centerX - 95, 400, 'Start', actionOnClick, this, 2, 1, 0);
-	
-	this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-	game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]); // Prevents the browswer from taking the signal
-	
-	this.textSpace = game.add.text(textSpaceWidth, textSpaceHeight, "", { font: "100px Arial", fill: "#ffffff", align: "center" });
-	
-	
-	
-	//game.stage.backgroundColor = backgroundColorValue;
-	
+    currentState = playState;
+    currentState.enable();
 }
-
 
 function update() {
-	
-	updateBackgroundColor();
-	
-	// Using downDuration lets us display it longer
-	if (this.spaceKey.downDuration(250)) //(this.spaceKey.isDown) 
-    {
-         
-		this.textSpace.text = "Clap.";
-		showNote();
+    var oldState = currentState;
+    switch (currentState.tick()) {
+        case "PLAYSTATE":
+            currentState = playState;
+            break;
     }
-	else 
-	{
-		this.textSpace.text = "";
-		hideNote();
-	}
-}
-
-function actionOnClick () {
-	console.log("Clicked!");
-}
-
-function showNote()
-{
-	note.reset(100,200);
-	
-}
-
-function hideNote()
-{
-	note.reset(-100,-100);
-	
-}
-
-
-function updateBackgroundColor()
-{
-	//incrementer = 1;
-	//console.log(backgroundColorValue);
-	
-	if (backgroundColorValue === 0xff0000) // red
-	{
-		incrementer = 0x100 // approaches yellow
-	}
-	
-	else if (backgroundColorValue === 0xffff00) // yellow
-	{
-		incrementer = -65536; // essentially -0x10000,approaches green
-	}
-	
-	else if (backgroundColorValue === 0xff00) // green
-	{
-		incrementer = 0x1; // approaches cyan 
-	}
-	
-	else if (backgroundColorValue === 0xffff) // cyan
-	{
-		incrementer = -256; // essentially -0x100 approaches blue 
-	}
-	
-	else if (backgroundColorValue === 0xff) // blue
-	{
-		incrementer = 0x10000; // approaches purple 
-	}
-	
-	else if (backgroundColorValue === 0xff00ff) // purple
-	{
-		incrementer = -1; // approaches red 
-	}
-	
-	backgroundColorValue += incrementer;
-	
-	game.stage.backgroundColor = backgroundColorValue; // updates background
+    if (oldState != currentState) {
+        oldState.disable();
+        currentState.enable();
+    }
 }
