@@ -21,7 +21,7 @@ GameState.prototype.disable = function() {};    // mark this state as inactive
 // StartState extends GameState
 
 var StartState = function(phGame) {
-    this.name = "StartState";
+    this.name = "STARTSTATE";
     this.game = phGame;
 
     this.game.load.image('title', 'assets/DeadBeatTitle.png');
@@ -119,24 +119,24 @@ var game = new Phaser.Game(width, height, Phaser.AUTO, '', {
     preload: preload, create: create, update: update
 });
 
-var StartState;
+var startState;
 
 var currentState;
 
 function preload() {
-    StartState = new StartState(game);
+    startState = new StartState(game);
 }
 
 function create() {
-    currentState = StartState;
+    currentState = startState;
     currentState.enable();
 }
 
 function update() {
     var oldState = currentState;
     switch (currentState.tick()) {
-        case "StartState":
-            currentState = StartState;
+        case "STARTSTATE":
+            currentState = startState;
             break;
     }
     if (oldState != currentState) {
