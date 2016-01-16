@@ -1,31 +1,16 @@
-var width = document.body.offsetWidth; 
-var height = document.body.offsetHeight;
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
-//var game = new Phaser.Game(width, height, Phaser.AUTO, '', {
-//    preload: preload, create: create, update: update });
-
-var game = new Phaser.Game(width, height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-
-function preload() 
-{
+function preload() {
 	game.load.image('title', 'assets/DeadBeatTitle.png');
-	//game.load.image('cat', 'assets/uglyCat.png');
-
+        game.load.image('note', 'assets/note.png');
 }
 
-var platforms;
-
-function create() 
-{
-	//game.add.sprite(0, 0, 'title');
-	
-	
-   
+function create() {
+    game.stage.backgroundColor = 0xffffff;
     game.add.sprite(25, 25, 'title');
-	//game.add.sprite(0, 0, 'cat');
-
+    game.add.sprite(50, 50, 'note');
 }
-function update() 
-{
+
+function update() {
 
 }
