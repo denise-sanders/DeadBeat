@@ -12,6 +12,8 @@ var incrementer;
 
 var note; // The music note sprite
 
+var startButton; 
+
 function preload() {
 	game.load.image('title', 'assets/DeadBeatTitle.png');
     game.load.image('note', 'assets/note.png');
@@ -33,7 +35,7 @@ function create() {
    
 	note.scale.setTo(.2,.2);
 
-	
+	startButton = game.add.button(game.world.centerX - 95, 400, 'Start', actionOnClick, this, 2, 1, 0);
 	
 	this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 	game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]); // Prevents the browswer from taking the signal
@@ -65,6 +67,9 @@ function update() {
 	}
 }
 
+function actionOnClick () {
+	console.log("Clicked!");
+}
 
 function showNote()
 {
@@ -116,5 +121,5 @@ function updateBackgroundColor()
 	
 	backgroundColorValue += incrementer;
 	
-	game.stage.backgroundColor = backgroundColorValue;
+	game.stage.backgroundColor = backgroundColorValue; // updates background
 }
