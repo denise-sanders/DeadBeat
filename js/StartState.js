@@ -22,7 +22,7 @@ StartState.prototype.enable = function() {
     this.game.stage.backgroundColor = this.backgroundColorValue;
     this.game.add.sprite(25, 25, 'title');
 
-    this.note = this.game.add.sprite(-100, -100, 'note');
+    this.note = this.game.add.sprite(100, 200, 'note');
     this.note.scale.setTo(.2,.2);
 
     this.startButton = this.game.add.button(game.world.centerX - 95, 400, 'start',
@@ -60,11 +60,11 @@ StartState.prototype.actionOnClick = function() {
 }
 
 StartState.prototype.showNote = function() {
-    this.note.reset(100,200);
+    this.note.visible = true;
 }
 
 StartState.prototype.hideNote = function() {
-    this.note.reset(-100,-100);
+    this.note.visible = false;
 }
 
 StartState.prototype.updateBackgroundColor = function() {
