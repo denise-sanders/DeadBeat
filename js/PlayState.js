@@ -24,7 +24,13 @@ var PlayState = function(phGame) {
     this.consecutiveCounter = 0;
     this.motivation = this.game.add.text(game.world.centerX+200, 200, "", { // Prints encouragement for consecutive correct beats
         font: "50px Arial", fill: "#ffffff", align: "center" });
+	this.consecutiveMiss = 0;	
+	this.missMotivation = this.game.add.text(game.world.centerX-300, 200, "", { // Prints encouragement for consecutive wrong beats
+        font: "50px Arial", fill: "#ffffff", align: "center" });
 		
+	this.motivationMessages = ["Awesome!", "So cool!", "On time", "No pressure", "Legendary","So beautiful","","","","",""];
+	this.motivationMissMessages = ["Mistakes are proof you're trying", "Your future is created by you", "There are no limits", "Strive for progress, not perfection", "Fall seven times, stand up eight","Experts were once beginners","Every second is a second chance","","","","","","",""];	
+	
 };
 
 PlayState.prototype = Object.create(GameState.prototype);
@@ -162,20 +168,24 @@ PlayState.prototype.tick = function() {
             console.log("Off by: " + timeSinceLast);
             hitCounter += 1;
             this.moveMotivation();
-			this.randdomMessage = Math.floor(Math.random() * (this.motivationMessages.length - 1));
+			this.randomMessage = Math.floor(Math.random() * (this.motivationMessages.length - 1));
             this.consecutiveCounter +=1;
+			this.consecutiveMiss = 0;
         } else if (timeUntilNext < this.threshold) {
             this.note.renderable = true;
             this.displayNoteUntil = this.lastTime + this.beatTime + this.threshold * 2;
             console.log("Off by: -" + timeUntilNext);
             hitCounter += 1;
             this.moveMotivation();
-			this.randdomMessage = Math.floor(Math.random() * (this.motivationMessages.length - 1));
+			this.randomMessage = Math.floor(Math.random() * (this.motivationMessages.length - 1));
             this.consecutiveCounter += 1;
+			this.consecutiveMiss = 0;
         } else {
             missCounter += 1;
             console.log("Off by: *" + timeUntilNext);
-            this.consecutiveCounter += 1; //= 0;
+            this.consecutiveCounter = 0;
+			this.consecutiveMiss +=1;
+			this.randomMessage = Math.floor(Math.random() * (this.motivationMissMessages.length - 1));
         }
 
         //writes the updated score
@@ -196,6 +206,7 @@ PlayState.prototype.tick = function() {
         this.hit.visible = false;
         this.miss.visible = false;
         this.motivation.visible = false;
+		this.missMotivation.visible = false;
         return "SCORESTATE";
     }
 
@@ -209,8 +220,7 @@ PlayState.prototype.tick = function() {
 // Function that handles encouragement that is printed in the upper right hand corner
 PlayState.prototype.extras = function() {
 
-	this.motivationMessages = ["Awesome!", "So cool!", "On time", "No pressure", "Legendary","So beautiful","","","","",""];	
-
+	// For consecutive hits
 	switch (true){
 		case this.consecutiveCounter === 0:
 			this.motivation.visible = false;
@@ -233,7 +243,17 @@ PlayState.prototype.extras = function() {
 			this.motivation.text = "";
 			break;	
 		case this.consecutiveCounter > 12:
-			this.motivation.text = this.motivationMessages[this.randdomMessage];
+			this.motivation.text = this.motivationMessages[this.randomMessage];
+	}
+	
+	// for consecutive misses
+	switch (true) {
+		case this.consecutiveMiss === 0:
+			this.missMotivation.visible = false;
+			break;
+		case this.consecutiveMiss >= 5 && this.consecutiveMiss % 2 === 1:
+			this.missMotivation.visible = true;
+			this.missMotivation.text = this.motivationMissMessages[this.randomMessage];
 	}
 }
 
