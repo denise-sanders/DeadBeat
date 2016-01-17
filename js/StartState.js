@@ -10,17 +10,13 @@ var StartState = function(phGame) {
     this.game.load.image('note', 'assets/note.png');
     this.game.load.image('start', 'assets/StartButton.png');
 
-    this.game.load.audio('song', 'assets/song.ogg');
-
     this.incrementer = 1;
 }
 
 StartState.prototype = Object.create(GameState.prototype);
 
-StartState.prototype = Object.create(GameState.prototype);
-
 StartState.prototype.enable = function() {
-    this.game.stage.backgroundColor = this.backgroundColorValue;
+    
     this.game.add.sprite(25, 25, 'title');
 
     this.startButton = this.game.add.button(game.world.centerX - 95, 400, 'start',
