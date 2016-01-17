@@ -170,6 +170,7 @@ PlayState.prototype.tick = function() {
             this.moveMotivation();
 			this.randomMessage = Math.floor(Math.random() * (this.motivationMessages.length - 1));
             this.consecutiveCounter +=1;
+			this.missMotivation.visible = false;
 			this.consecutiveMiss = 0;
         } else if (timeUntilNext < this.threshold) {
             this.note.renderable = true;
@@ -179,12 +180,14 @@ PlayState.prototype.tick = function() {
             this.moveMotivation();
 			this.randomMessage = Math.floor(Math.random() * (this.motivationMessages.length - 1));
             this.consecutiveCounter += 1;
+			this.missMotivation.visible = false;
 			this.consecutiveMiss = 0;
         } else {
             missCounter += 1;
             console.log("Off by: *" + timeUntilNext);
             this.consecutiveCounter = 0;
 			this.consecutiveMiss +=1;
+			this.motivation.visible = false;
 			this.randomMessage = Math.floor(Math.random() * (this.motivationMissMessages.length - 1));
         }
 
