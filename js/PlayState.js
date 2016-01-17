@@ -58,17 +58,22 @@ PlayState.prototype.enable = function() {
     this.inputFreq = this.beatTime / 2;
 
     // Note display information.
-    this.displayNoteUntil = this.currentTime - 1;
+    this.displayNoteUntil = 0;
+
+    // Try to load the song?
+    this.song.play();
+    this.song.pause();
 
     // Keep track of time.
     this.startTime = this.game.time.totalElapsedSeconds();
     this.lastTime = this.startTime;
 
     // Factor in a minor offset for audio.
-    this.lastTime -= 0.2;
+    //this.lastTime -= 0.1;
 
     // OK GO!
     this.song.play();
+
 }
 
 PlayState.prototype.tick = function() {
