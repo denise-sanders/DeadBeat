@@ -24,6 +24,7 @@ var PlayState = function(phGame) {
     this.consecutiveCounter = 0;
     this.motivation = this.game.add.text(game.world.centerX+200, 200, "", { // Prints encouragement for consecutive correct beats
         font: "50px Arial", fill: "#ffffff", align: "center" });
+		
 };
 
 PlayState.prototype = Object.create(GameState.prototype);
@@ -161,6 +162,7 @@ PlayState.prototype.tick = function() {
             console.log("Off by: " + timeSinceLast);
             hitCounter += 1;
             this.moveMotivation();
+			this.randdomMessage = Math.floor(Math.random() * (this.motivationMessages.length - 1));
             this.consecutiveCounter +=1;
         } else if (timeUntilNext < this.threshold) {
             this.note.renderable = true;
@@ -168,11 +170,12 @@ PlayState.prototype.tick = function() {
             console.log("Off by: -" + timeUntilNext);
             hitCounter += 1;
             this.moveMotivation();
+			this.randdomMessage = Math.floor(Math.random() * (this.motivationMessages.length - 1));
             this.consecutiveCounter += 1;
         } else {
             missCounter += 1;
             console.log("Off by: *" + timeUntilNext);
-            this.consecutiveCounter = 0;
+            this.consecutiveCounter += 1; //= 0;
         }
 
         //writes the updated score
@@ -205,27 +208,33 @@ PlayState.prototype.tick = function() {
 
 // Function that handles encouragement that is printed in the upper right hand corner
 PlayState.prototype.extras = function() {
-    switch (this.consecutiveCounter){
-        case 0:
-            this.motivation.visible = false;
-            break;
-        case 3:
-            this.motivation.visible = true;
-            this.motivation.text = "Awesome!";
-            break;
-        case 5:
-            this.motivation.text = "5 in a row!";
-            break;
-        case 6:
-            this.motivation.text = "";
-            break;
 
-        case 10:
-            this.motivation.text = "10 consecutive!";
-            break;
-        case 11:
-            this.motivation.text = "";
-    }
+	this.motivationMessages = ["Awesome!", "So cool!", "On time", "No pressure", "Legendary","So beautiful","","","","",""];	
+
+	switch (true){
+		case this.consecutiveCounter === 0:
+			this.motivation.visible = false;
+			break;
+		case this.consecutiveCounter === 3:
+			this.motivation.visible = true;
+			this.motivation.text = "Awesome!";
+			break;
+		case this.consecutiveCounter === 5:
+			this.motivation.text = "5 in a row!";
+			break;
+		case this.consecutiveCounter === 6:
+			this.motivation.text = "";
+			break;
+			
+		case this.consecutiveCounter === 10:
+			this.motivation.text = "10 consecutive!";
+			break;
+		case this.consecutiveCounter === 11:
+			this.motivation.text = "";
+			break;	
+		case this.consecutiveCounter > 12:
+			this.motivation.text = this.motivationMessages[this.randdomMessage];
+	}
 }
 
 // Called whenever consecutiveCounter is incrementedCh
