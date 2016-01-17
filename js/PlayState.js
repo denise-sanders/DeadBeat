@@ -11,19 +11,38 @@ var PlayState = function(phGame) {
 
 PlayState.prototype = Object.create(GameState.prototype);
 
+var hitCounter = 0;
+var missCounter = 0;
+var spaceTime = 0; // Used in tick, prevents counter running up from spacebar being held down too long
+
 PlayState.prototype.enable = function() {
     // Adjust the background color.
-    this.game.stage.backgroundColor = 0xffffff;
-
+	updateBackgroundColor();
+	
     // Setup note in the middle of the screen.
     var centerX = game.world.centerX;
     var centerY = game.world.centerY;
-    this.note = this.game.add.sprite(centerX, centerY, 'image/note');
+
+    this.note = this.game.add.sprite(centerX - 50, centerY - 50, 'image/note');
+	this.note.scale.setTo(.5,.5);
     this.note.renderable = false;
 
     // Setup the spacebar to count as a clap.
     this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]); // browser can't stop the signal, Mel
+
+	// Create scoreboard
+	var hitText = "Hits: " + 0;
+	var missText = "Misses: " + 0;
+	var hitX = centerX + 200;
+	var hitY = centerY + 100;
+	var missX = centerX + 200;
+	var missY = centerY + 200;
+
+	this.hit = this.game.add.text(hitX, hitY, hitText, {
+	font: "50px Arial", fill: "#ffffff", align: "center" });
+	this.miss = this.game.add.text(missX, missY, missText, {
+        font: "50px Arial", fill: "#ffffff", align: "center" });
 
     // Prepare the song.
     this.song = this.game.add.audio('song/oceanic');
@@ -32,7 +51,7 @@ PlayState.prototype.enable = function() {
     // Prepare the beat information.
     this.beatTime = 60 / this.bpm;
     this.beats = 0;
-    this.threshold = this.beatTime * 0.2;
+    this.threshold = this.beatTime * 0.35;
 
     // Prepare SpaceBar tracking information.
     this.lastInput = 0;
@@ -72,17 +91,29 @@ PlayState.prototype.tick = function() {
             this.note.renderable = true;
             this.displayNoteUntil = this.lastTime + this.threshold * 2;
             console.log("Off by: " + timeSinceLast);
+			hitCounter += 1;
         } else if (timeUntilNext < this.threshold) {
             this.note.renderable = true;
             this.displayNoteUntil = this.lastTime + this.beatTime + this.threshold * 2;
             console.log("Off by: -" + timeUntilNext);
-        }
-    }
+			hitCounter += 1;
+        } else {
+			missCounter += 1;
+			console.log("Off by: *" + timeUntilNext);
+		}
+    	
+		//writes the updated score
+		this.hit.text = "Hits: " + hitCounter; 
+		this.miss.text = "Misses: " + missCounter;
+	}
 
     // Verify that the note is in it's correct visibility state.
     if (currentTime > this.displayNoteUntil) {
         this.note.renderable = false;
     }
+	
+	updateBackgroundColor();
+	return this.name;
 }
 
 // RULES

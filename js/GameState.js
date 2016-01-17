@@ -12,6 +12,7 @@
 var GameState = function(phGame) {
     this.name = "GAMESTATE";
     this.game = phGame;
+	
 };
 
 GameState.prototype.enable = function() {};     // mark this state as active
