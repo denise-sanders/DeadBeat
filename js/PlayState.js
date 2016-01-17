@@ -53,6 +53,9 @@ PlayState.prototype.newSong = function() {
     this.songOffset = this.songs[id].offset;
     this.songPath = this.songs[id].path;
     this.songThreshold = this.songs[id].threshold;
+
+    this.songInfo = this.songArtist + " - " + this.songName + "\n[" +
+        this.songLicense + "]";
 }
 
 PlayState.prototype.enable = function() {
@@ -85,7 +88,7 @@ PlayState.prototype.enable = function() {
     var missText = "Misses: " + 0;
     var hitX = centerX + 250;
     var hitY = centerY + 150;
-    var missX = centerX + 250;
+    var missX = 50;
     var missY = centerY + 200;
 
     this.space.onDown.add(this.tap, this);
@@ -100,11 +103,15 @@ PlayState.prototype.enable = function() {
     var hitY = centerY + 100;
     var missX = centerX + 200;
     var missY = centerY + 200;
+    var infoX = 100;
+    var infoY = centerY + 200;
 
     this.hit = this.game.add.text(hitX, hitY, hitText, {
         font: "50px Arial", fill: "#ffffff", align: "center" });
     this.miss = this.game.add.text(missX, missY, missText, {
         font: "50px Arial", fill: "#ffffff", align: "center" });
+    this.info = this.game.add.text(infoX, infoY, this.songInfo, {
+        font: "36px Arial", fill: "#ffffff", align: "center" });
 
     // Prepare the song.
     this.song = this.game.add.audio(this.songPath);
@@ -140,6 +147,7 @@ PlayState.prototype.enable = function() {
 PlayState.prototype.disable = function() {
     this.song.stop();
     this.newSong();
+    this.info.kill();
 }
 
 PlayState.prototype.tap = function() {
