@@ -7,17 +7,29 @@ var PlayState = function(phGame) {
     // Things to load go here.
     this.game.load.image('image/note', 'assets/note.png');
     this.game.load.audio('song/oceanic', 'assets/oceanic.ogg');
+	
+	this.consecutiveCounter = 0;
+	this.motivation = this.game.add.text(game.world.centerX+200, 200, "", { // Prints encouragement for consecutive correct beats
+        font: "50px Arial", fill: "#ffffff", align: "center" });
 };
 
 PlayState.prototype = Object.create(GameState.prototype);
 
-var hitCounter = 0;
-var missCounter = 0;
+var hitCounter;
+var missCounter;
 var spaceTime = 0; // Used in tick, prevents counter running up from spacebar being held down too long
 
 PlayState.prototype.enable = function() {
-    // Adjust the background color.
+    // Counts the hits and misses
+	hitCounter = 0;
+	missCounter = 0;
+	
+	// Adjust the background color.
 	updateBackgroundColor();
+	
+	// Make the song only play 30 seconds
+	this.beginTime = this.game.time.totalElapsedSeconds();
+	this.endTime = this.beginTime + 30; // They have 30 seconds with the song
 	
     // Setup note in the middle of the screen.
     var centerX = game.world.centerX;
@@ -34,9 +46,9 @@ PlayState.prototype.enable = function() {
 	// Create scoreboard
 	var hitText = "Hits: " + 0;
 	var missText = "Misses: " + 0;
-	var hitX = centerX + 200;
-	var hitY = centerY + 100;
-	var missX = centerX + 200;
+	var hitX = centerX + 250;
+	var hitY = centerY + 150;
+	var missX = centerX + 250;
 	var missY = centerY + 200;
 
 	this.hit = this.game.add.text(hitX, hitY, hitText, {
@@ -97,14 +109,19 @@ PlayState.prototype.tick = function() {
             this.displayNoteUntil = this.lastTime + this.threshold * 2;
             console.log("Off by: " + timeSinceLast);
 			hitCounter += 1;
+			this.moveMotivation();
+			this.consecutiveCounter +=1;
         } else if (timeUntilNext < this.threshold) {
             this.note.renderable = true;
             this.displayNoteUntil = this.lastTime + this.beatTime + this.threshold * 2;
             console.log("Off by: -" + timeUntilNext);
 			hitCounter += 1;
+			this.moveMotivation();
+			this.consecutiveCounter += 1;
         } else {
 			missCounter += 1;
 			console.log("Off by: *" + timeUntilNext);
+			this.consecutiveCounter = 0;
 		}
     	
 		//writes the updated score
@@ -117,8 +134,53 @@ PlayState.prototype.tick = function() {
         this.note.renderable = false;
     }
 	
+	this.extras();
+	
+	if (this.endTime < game.time.totalElapsedSeconds()){
+		this.note.renderable = false;
+		this.hit.visible = false;
+		this.miss.visible = false;
+		this.motivation.visible = false;
+		return "SCORESTATE";
+	}
+	
+	
 	updateBackgroundColor();
 	return this.name;
+}
+
+// Function that handles encouragement that is printed in the upper right hand corner
+PlayState.prototype.extras = function() {
+	switch (this.consecutiveCounter){
+		case 0:
+			this.motivation.visible = false;
+			break;
+		case 3:
+			this.motivation.visible = true;
+			this.motivation.text = "Awesome!";
+			break;
+		case 5:
+			this.motivation.text = "5 in a row!";
+			break;
+		case 6:
+			this.motivation.text = "";
+			break;
+			
+		case 10:
+			this.motivation.text = "10 consecutive!";
+			break;
+		case 11:
+			this.motivation.text = "";
+	}
+}
+
+// Called whenever consecutiveCounter is incrementedCh
+PlayState.prototype.moveMotivation =function(){
+	randomX = Math.floor(Math.random() * game.world.centerX + 150); // For maximum fun, message will be printed on a random place on the screen
+	randomY = Math.floor(Math.random() * game.world.centerY + 100) + 100; 
+	
+	this.motivation.x = randomX; 
+	this.motivation.y = randomY;
 }
 
 // RULES

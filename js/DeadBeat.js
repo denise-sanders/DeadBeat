@@ -7,6 +7,8 @@ var game = new Phaser.Game(width, height, Phaser.AUTO, '', {
 });
 
 var startState;
+var playState;
+var scoreState;
 
 var currentState;
 
@@ -15,6 +17,7 @@ var backgroundColorValue = 0xff0000;
 function preload() {
     startState = new StartState(game);
     playState = new PlayState(game);
+	scoreState = new ScoreState(game);
 }
 
 function create() {
@@ -30,6 +33,9 @@ function update() {
             break;
         case "PLAYSTATE":
             currentState = playState;
+            break;
+		case "SCORESTATE":
+            currentState = scoreState;
             break;
     }
     if (oldState != currentState) {

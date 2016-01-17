@@ -17,10 +17,8 @@ var StartState = function(phGame) {
 
 StartState.prototype = Object.create(GameState.prototype);
 
-StartState.prototype = Object.create(GameState.prototype);
-
 StartState.prototype.enable = function() {
-    this.game.stage.backgroundColor = this.backgroundColorValue;
+    
     this.game.add.sprite(25, 25, 'title');
 
     this.startButton = this.game.add.button(game.world.centerX - 95, 400, 'start',
