@@ -1,6 +1,6 @@
 [
 {
-    "path": "assets/remedy.ogg",
+    "path": "assets/remedyClip.ogg",
     "name": "Remedy for Melancholy",
     "artist": "Kai Engel",
     "license": "CC BY",
@@ -9,7 +9,7 @@
     "threshold": 0.35
 },
 {
-    "path": "assets/oceanic.ogg",
+    "path": "assets/oceanicClip.ogg",
     "name": "Oceanic",
     "artist": "Michett",
     "license": "CC BY",
@@ -18,7 +18,7 @@
     "threshold": 0.25
 },
 {
-    "path": "assets/opposition.ogg",
+    "path": "assets/oppositionClip.ogg",
     "name": "Opposition",
     "artist": "Fire Island Pines",
     "license": "CC BY-NC-ND",
@@ -27,7 +27,7 @@
     "threshold": 0.4
 },
 {
-    "path": "assets/williamoforange.ogg",
+    "path": "assets/williamoforangeClip.ogg",
     "name": "William Of Orange",
     "artist": "The Blend",
     "license": "CC BY-NC-ND",
