@@ -4,12 +4,25 @@ var PlayState = function(phGame) {
     this.name = "PLAYSTATE";
     this.game = phGame;
 
+    // Load this.songs options from JSON.
+    var request = new XMLHttpRequest();
+    request.open("GET", "songs.json", false);
+    request.send(null);
+    this.songs = JSON.parse(request.responseText);
+
+    // Select random song.
+    this.songId = Math.floor(Math.random() * (this.songs.length));
+    this.newSong();
+
     // Things to load go here.
     this.game.load.image('image/note', 'assets/note.png');
-    this.game.load.audio('song/oceanic', 'assets/oceanic.ogg');
-	
-	this.consecutiveCounter = 0;
-	this.motivation = this.game.add.text(game.world.centerX+200, 200, "", { // Prints encouragement for consecutive correct beats
+    for (var i = 0; i < this.songs.length; i++) {
+        this.game.load.audio(this.songs[i].path, this.songs[i].path);
+        console.log("LOADED " + i);
+    }
+
+    this.consecutiveCounter = 0;
+    this.motivation = this.game.add.text(game.world.centerX+200, 200, "", { // Prints encouragement for consecutive correct beats
         font: "50px Arial", fill: "#ffffff", align: "center" });
 };
 
@@ -19,18 +32,34 @@ var hitCounter;
 var missCounter;
 var spaceTime = 0; // Used in tick, prevents counter running up from spacebar being held down too long
 
+PlayState.prototype.newSong = function() {
+    this.songId += 1;
+    if (this.songId == this.songs.length) {
+        this.songId = 0;
+    }
+    var id = this.songId;
+    console.log("SONG ID: " + id);
+    this.songName = this.songs[id].name;
+    this.songArtist = this.songs[id].artist;
+    this.songLicense = this.songs[id].license;
+    this.songBPM = this.songs[id].bpm;
+    this.songOffset = this.songs[id].offset;
+    this.songPath = this.songs[id].path;
+    this.songThreshold = this.songs[id].threshold;
+}
+
 PlayState.prototype.enable = function() {
 
     // Counts the hits and misses
-	hitCounter = 0;
-	missCounter = 0;
-	
-	// Adjust the background color.
-	updateBackgroundColor();
-	
-	// Make the song only play 30 seconds
-	this.beginTime = this.game.time.totalElapsedSeconds();
-	this.endTime = this.beginTime + 30; // They have 30 seconds with the song
+    hitCounter = 0;
+    missCounter = 0;
+
+    // Adjust the background color.
+    updateBackgroundColor();
+
+    // Make the song only play 30 seconds
+    this.beginTime = this.game.time.totalElapsedSeconds();
+    this.endTime = this.beginTime + 30; // They have 30 seconds with the song
 
     // Setup note in the middle of the screen.
     var centerX = game.world.centerX;
@@ -44,13 +73,13 @@ PlayState.prototype.enable = function() {
     this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]); // browser can't stop the signal, Mel
 
-	// Create scoreboard
-	var hitText = "Hits: " + 0;
-	var missText = "Misses: " + 0;
-	var hitX = centerX + 250;
-	var hitY = centerY + 150;
-	var missX = centerX + 250;
-	var missY = centerY + 200;
+    // Create scoreboard
+    var hitText = "Hits: " + 0;
+    var missText = "Misses: " + 0;
+    var hitX = centerX + 250;
+    var hitY = centerY + 150;
+    var missX = centerX + 250;
+    var missY = centerY + 200;
 
     this.space.onDown.add(this.tap, this);
     this.tapped = false;
@@ -71,13 +100,13 @@ PlayState.prototype.enable = function() {
         font: "50px Arial", fill: "#ffffff", align: "center" });
 
     // Prepare the song.
-    this.song = this.game.add.audio('song/oceanic');
-    this.bpm = 90;
+    this.song = this.game.add.audio(this.songPath);
+    this.bpm = this.songBPM;
 
     // Prepare the beat information.
     this.beatTime = 60 / this.bpm;
     this.beats = 0;
-    this.threshold = this.beatTime * 0.35;
+    this.threshold = this.beatTime * 0.25;
 
     // Prepare input tracking information.
     this.lastInput = 0;
@@ -95,10 +124,15 @@ PlayState.prototype.enable = function() {
     this.lastTime = this.startTime;
 
     // Factor in a minor offset for audio.
-    //this.lastTime -= 0.1;
+    this.lastTime += this.songOffset;
 
     // OK GO!
     this.song.play();
+}
+
+PlayState.prototype.disable = function() {
+    this.song.stop();
+    this.newSong();
 }
 
 PlayState.prototype.tap = function() {
@@ -125,25 +159,25 @@ PlayState.prototype.tick = function() {
             this.note.renderable = true;
             this.displayNoteUntil = this.lastTime + this.threshold * 2;
             console.log("Off by: " + timeSinceLast);
-			hitCounter += 1;
-			this.moveMotivation();
-			this.consecutiveCounter +=1;
+            hitCounter += 1;
+            this.moveMotivation();
+            this.consecutiveCounter +=1;
         } else if (timeUntilNext < this.threshold) {
             this.note.renderable = true;
             this.displayNoteUntil = this.lastTime + this.beatTime + this.threshold * 2;
             console.log("Off by: -" + timeUntilNext);
-			hitCounter += 1;
-			this.moveMotivation();
-			this.consecutiveCounter += 1;
+            hitCounter += 1;
+            this.moveMotivation();
+            this.consecutiveCounter += 1;
         } else {
-			missCounter += 1;
-			console.log("Off by: *" + timeUntilNext);
-			this.consecutiveCounter = 0;
-		}
-    	
-		//writes the updated score
-		this.hit.text = "Hits: " + hitCounter; 
-		this.miss.text = "Misses: " + missCounter;
+            missCounter += 1;
+            console.log("Off by: *" + timeUntilNext);
+            this.consecutiveCounter = 0;
+        }
+
+        //writes the updated score
+        this.hit.text = "Hits: " + hitCounter; 
+        this.miss.text = "Misses: " + missCounter;
     }
 
     // Verify that the note is in it's correct visibility state.
@@ -151,18 +185,18 @@ PlayState.prototype.tick = function() {
         this.note.renderable = false;
     }
 
-	
-	this.extras();
-	
-	if (this.endTime < game.time.totalElapsedSeconds()){
-		this.note.renderable = false;
-		this.hit.visible = false;
-		this.miss.visible = false;
-		this.motivation.visible = false;
-		return "SCORESTATE";
-	}
-	
-	
+
+    this.extras();
+
+    if (this.endTime < game.time.totalElapsedSeconds()){
+        this.note.renderable = false;
+        this.hit.visible = false;
+        this.miss.visible = false;
+        this.motivation.visible = false;
+        return "SCORESTATE";
+    }
+
+
     this.tapped = false; // I dont know if this should be here
     updateBackgroundColor();
     return this.name;
@@ -171,36 +205,36 @@ PlayState.prototype.tick = function() {
 
 // Function that handles encouragement that is printed in the upper right hand corner
 PlayState.prototype.extras = function() {
-	switch (this.consecutiveCounter){
-		case 0:
-			this.motivation.visible = false;
-			break;
-		case 3:
-			this.motivation.visible = true;
-			this.motivation.text = "Awesome!";
-			break;
-		case 5:
-			this.motivation.text = "5 in a row!";
-			break;
-		case 6:
-			this.motivation.text = "";
-			break;
-			
-		case 10:
-			this.motivation.text = "10 consecutive!";
-			break;
-		case 11:
-			this.motivation.text = "";
-	}
+    switch (this.consecutiveCounter){
+        case 0:
+            this.motivation.visible = false;
+            break;
+        case 3:
+            this.motivation.visible = true;
+            this.motivation.text = "Awesome!";
+            break;
+        case 5:
+            this.motivation.text = "5 in a row!";
+            break;
+        case 6:
+            this.motivation.text = "";
+            break;
+
+        case 10:
+            this.motivation.text = "10 consecutive!";
+            break;
+        case 11:
+            this.motivation.text = "";
+    }
 }
 
 // Called whenever consecutiveCounter is incrementedCh
 PlayState.prototype.moveMotivation =function(){
-	randomX = Math.floor(Math.random() * game.world.centerX + 150); // For maximum fun, message will be printed on a random place on the screen
-	randomY = Math.floor(Math.random() * game.world.centerY + 100) + 100; 
-	
-	this.motivation.x = randomX; 
-	this.motivation.y = randomY;
+    randomX = Math.floor(Math.random() * game.world.centerX + 150); // For maximum fun, message will be printed on a random place on the screen
+    randomY = Math.floor(Math.random() * game.world.centerY + 100) + 100; 
+
+    this.motivation.x = randomX; 
+    this.motivation.y = randomY;
 }
 
 // RULES

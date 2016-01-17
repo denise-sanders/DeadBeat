@@ -10,8 +10,6 @@ var StartState = function(phGame) {
     this.game.load.image('note', 'assets/note.png');
     this.game.load.image('start', 'assets/StartButton.png');
 
-    this.game.load.audio('song', 'assets/song.ogg');
-
     this.incrementer = 1;
 }
 
